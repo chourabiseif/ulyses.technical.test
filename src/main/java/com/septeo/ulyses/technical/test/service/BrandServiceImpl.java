@@ -1,8 +1,8 @@
 package com.septeo.ulyses.technical.test.service;
 
+import com.septeo.ulyses.technical.test.cache.SimpleCache;
 import com.septeo.ulyses.technical.test.entity.Brand;
 import com.septeo.ulyses.technical.test.repository.BrandRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,15 +17,23 @@ import java.util.Optional;
 @Transactional(readOnly = false)
 public class BrandServiceImpl implements BrandService {
 
-    @Autowired
-    private BrandRepository brandRepository;
+    private final BrandRepository brandRepository;
+    private final SimpleCache<String, List<Brand>> allBrandsCache;
+    private final SimpleCache<Long, Brand> brandByIdCache;
+
+    public BrandServiceImpl(BrandRepository brandRepository) {
+        this.brandRepository = brandRepository;
+        this.allBrandsCache = new SimpleCache<>(1 * 60 * 1000); // 1 minute
+        this.brandByIdCache = new SimpleCache<>(1 * 60 * 1000); // 1 minute
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public List<Brand> getAllBrands() {
-        return brandRepository.findAll();
+
+        return allBrandsCache.get("ALL", brandRepository::findAll);
     }
 
     /**
@@ -33,7 +41,11 @@ public class BrandServiceImpl implements BrandService {
      */
     @Override
     public Optional<Brand> getBrandById(Long id) {
-        return brandRepository.findById(id);
+
+        Brand result = brandByIdCache.get(id, () ->
+                brandRepository.findById(id).orElse(null)
+        );
+        return Optional.ofNullable(result);
     }
 
     /**
@@ -41,14 +53,19 @@ public class BrandServiceImpl implements BrandService {
      */
     @Override
     public Brand saveBrand(Brand brand) {
-        return brandRepository.save(brand);
+        Brand saved = brandRepository.save(brand);
+
+        allBrandsCache.clear();
+        brandByIdCache.invalidate(saved.getId());
+
+        return saved;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void deleteBrand(Long id) {
         brandRepository.deleteById(id);
+
+        allBrandsCache.clear();
+        brandByIdCache.invalidate(id);
     }
 }
