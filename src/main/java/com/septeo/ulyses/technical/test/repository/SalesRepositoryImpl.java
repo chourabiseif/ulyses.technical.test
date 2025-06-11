@@ -42,4 +42,35 @@ public class SalesRepositoryImpl implements SalesRepository {
             return Optional.empty();
         }
     }
+
+    @Override
+    public List<Sales> findByBrandId(Long brandId) {
+        String queryStr = "SELECT s FROM Sales s WHERE s.vehicle.brand.id = :brandId";
+        return entityManager.createQuery(queryStr, Sales.class)
+                .setParameter("brandId", brandId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Sales> findByVehicleId(Long vehicleId) {
+        String queryStr = "SELECT s FROM Sales s WHERE s.vehicle.id = :vehicleId";
+        return entityManager.createQuery(queryStr, Sales.class)
+                .setParameter("vehicleId", vehicleId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Sales> findAllPaginated(int pageNumber, int pageSize) {
+        String queryStr = "SELECT s FROM Sales s";
+        return entityManager.createQuery(queryStr, Sales.class)
+                .setFirstResult((pageNumber - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public Long countSales() {
+        String queryStr = "SELECT COUNT(s) FROM Sales s";
+        return entityManager.createQuery(queryStr, Long.class).getSingleResult();
+    }
 }

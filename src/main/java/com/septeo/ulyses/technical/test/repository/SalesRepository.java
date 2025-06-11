@@ -29,4 +29,31 @@ public interface SalesRepository {
      */
     Optional<Sales> findById(Long id);
 
+    /**
+     * Get sales by brand id.
+     *
+     * @param brandId the ID of the brand
+     * @return the list of sales for the given brand
+     */
+    List<Sales> findByBrandId(Long brandId);
+
+    /**
+     * Get sales by vehicle id.
+     *
+     * @param vehicleId the ID of the vehicle
+     * @return the list of sales for the given vehicle
+     */
+    List<Sales> findByVehicleId(Long vehicleId);
+
+    /**
+     * Find page of sale.
+     *
+     * @param pageNumber the number of the page requested
+     * @param pageSize   the size of the page
+     * @return the page of sales
+     */
+    List<Sales> findAllPaginated(int pageNumber, int pageSize);
+
+    Long countSales();
+
 }

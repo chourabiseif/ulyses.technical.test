@@ -1,8 +1,9 @@
 package com.septeo.ulyses.technical.test.service;
 
-import com.septeo.ulyses.technical.test.entity.Brand;
+import com.septeo.ulyses.technical.test.dto.BestSellingVehicleDto;
+import com.septeo.ulyses.technical.test.dto.PaginatedResponse;
 import com.septeo.ulyses.technical.test.entity.Sales;
-import com.septeo.ulyses.technical.test.entity.Vehicle;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,5 +28,26 @@ public interface SalesService {
      * @return an Optional containing the sales if found, or empty if not found
      */
     Optional<Sales> getSalesById(Long id);
+
+    /**
+     * Get sales by brand id.
+     *
+     * @param brandId the ID of the brand
+     * @return the list of sales for the given brand
+     */
+    List<Sales> getSalesByBrandId(Long brandId);
+
+    /**
+     * Get sales by vehicle id.
+     *
+     * @param vehicleId the ID of the vehicle
+     * @return the list of sales for the given vehicle
+     */
+    List<Sales> getSalesByVehicleId(Long vehicleId);
+
+    PaginatedResponse<Sales> getSalesPaginated(int pageNumber, int pageSize);
+
+    List<BestSellingVehicleDto> getBestSellingVehicles(LocalDate startDate, LocalDate endDate);
+
 
 }
